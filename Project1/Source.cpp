@@ -1,0 +1,274 @@
+#include<iostream>
+#include<fstream>
+#include <time.h>
+#include<ctime>
+#include<math.h>
+#include<string>
+#include<utility>
+#include<vector>
+#include<string>
+
+using namespace std;
+
+#define MyInt int
+
+/*variabile globale*/
+char caracter[100] = { 0 };
+int N = 0;
+
+/*extindem operatorul modulo (%) si pentru numere negative*/
+int modulo(MyInt k, MyInt n) {
+	if (k < 0)k = n - (-k) % n;
+	if (k >= n) return k % n;
+	return k;
+}
+
+/*va returna -1 daca numarul nu este inversabil*/
+int invers(MyInt a, MyInt n) {
+	MyInt q, r, x0 = 1, x1 = 0, copy_n = n;
+	a = modulo(a, n);
+	while (n != 0)
+	{
+		r = n;
+		q = a / n;
+		n = a % n;
+		a = r;
+
+		r = x1;
+		x1 = x0 - q * x1;
+		x0 = r;
+	}
+	if (a == 1)
+		return modulo(x0, copy_n);
+	return -1;
+}
+
+int cmmdc(MyInt x, MyInt y) {
+	MyInt rest;
+	do {
+		rest = x % y;
+		x = y;
+		y = rest;
+	} while (rest != 0);
+	return x;
+}
+
+int a_la_b_mod_c(int a, int b, int c) {
+	int p = 1;
+	a %= c;
+	while (b > 0)
+	{
+		if (b % 2)
+			p = (p * a) % c;
+		a = (a * a) % c;
+		b /= 2;
+	}
+	return p;
+}
+
+/*citeste caracterele alfabetului precum si numarul de caractere din alfabet*/
+void citeste_alfabet() {
+	N = 0;
+	ifstream in("alfabet.txt");
+	if (!in.good())
+		perror("Fisier inexistent");
+	char c;
+	while (in >> noskipws >> c) {
+		caracter[N] = c;
+		N++;
+	}
+	if (N == 0)
+		cout << "Alfabetul dat are 0 caractere" << endl;
+}
+
+/*da codul(indexul) caracterului c in tabloul caracter */
+int da_cod(char c) {
+	for (int i = 0; i < N; i++)
+		if (caracter[i] == c)return i;
+	return -1;
+}
+
+/*da caracterul corespunzator codului dat*/
+char da_caracter(int cod) {
+	return caracter[modulo(cod, N)];
+}
+
+int prim(int x) {
+	int i;
+	if ((x == 1) || (x == 2)) return 1;
+	if (x % 2 == 0) return 0;
+	for (i = 3; i <= sqrt((double)x); i += 2)
+		if (x % i == 0) return 0;
+	return 1;
+}
+
+//da un numar prim diferit de nr. situat intre min si max.
+//Generam numere astfel incat produsul a doua asemenea numere sa nu depaseasca domeniul pentru variabile te tip int
+int da_prim(int min, int max, int nr) {
+	int k, nrIncercari = 10;
+	if (min < 0 || max<0 || min>max)return-1;
+	if (min == max)
+		if (prim(min))
+			return min;
+		else
+			return -1;
+	for (int i = 0; i < nrIncercari; i++) {
+		k = (int)sqrt((double)rand());
+		k = min + k % (max - min);
+		while (!prim(k) || k == nr)k++;
+		if (k <= max)return k;
+	}
+	k = min;
+	while (!prim(k) || k == nr)k++;
+	if (k <= max)return k;
+	return -1;
+}
+
+long este_patrat_perfect(long x) {
+	long temp = (long)sqrt((double)x);
+	if (temp * temp == x)return temp;
+	return 0;
+}
+
+void factorizare(int n, int& p, int& q) {
+	long s_patrat, t;
+	t = (long)(sqrt((double)n) + 1);//prnim de la (radical n)+1
+	s_patrat = t * t - n;
+	while (!este_patrat_perfect(s_patrat) && (t <= n)) {
+		t++;
+		s_patrat = t * t - n;
+	}
+	if (este_patrat_perfect(s_patrat) >= 0) {
+		s_patrat = (long)sqrt((double)s_patrat);
+		p = t + s_patrat;
+		q = t - s_patrat;
+	}
+	else {
+		p = -1; q = -1;
+	}
+}
+
+
+/*functie pentru aflarea celui mai lung cuvant dintr-un string*/
+string cel_mai_lung_cuvant(string text) {
+	string abc, maxing;
+	for (int i = 0; i < text.length(); i++)
+	{
+		if ((text[i] == ' '))
+		{
+			if (abc.length() > maxing.length())
+				maxing = abc;
+			abc.clear();
+			continue;
+		}
+		abc += text[i];
+	}
+	if (maxing.length() < abc.length())maxing = abc;
+	return maxing;
+
+}
+
+/*functie de decriptare a unui string*/
+/*in functia aceasta am verificat daca dupa decriptare, textul ar putea fi un text in clar sau nu, impunand anumite conditii*/
+/*in cazul in care textul respecta conditiile respective, functia va returna textul decriptat, altfel va returna un string nul*/
+string decriptare(string& text, int n, int d) {
+	citeste_alfabet();
+	int j, l, i, m;
+	for (i = 0, m = 1; m < n; i++) m *= N;
+	//cout << "Dati lungimea blocului de caractere (<=" << i << ")";
+	//cin >> j;
+	//cout << "Dati lungimea blocului de caractere (>=" << i << ")";
+	//cin >> l;
+	j = 3;
+	l = 2;
+	string text_criptat = "";
+	char* c;
+	citeste_alfabet();
+	c = new char[l >= j ? l : j];
+	i = m = 0;
+	for (int aux = 0; aux < text.size(); aux++) {
+		c[i] = text[aux];
+		m = m * N + da_cod(c[i]);
+		if (i == j - 1) {
+			m = a_la_b_mod_c(m, d, n);
+			i = l - 1;
+			while (m > 0) {
+				c[i] = da_caracter(m % N);
+				m = m / N;
+				i--;
+			}
+			while (m > 0) {
+				c[i] = da_caracter(m % N);
+				m = m / N;
+				i--;
+			}
+			while (i >= 0) c[i--] = da_caracter(0);
+			for (i = 0; i < l; i++) text_criptat = text_criptat + c[i];
+			i = 0;
+		}
+		else
+			i++;
+	}
+
+	/*calculam numarul de spatii*/
+	int flag = 0;
+	for (int i = 0; i < text_criptat.size(); i++) {
+		if (da_cod(text_criptat[i]) == 66) flag++;
+	}
+
+
+	/*punem conditii pentru a verifica daca este un text in clar in limba romana*/
+	/*conditiile ar fi:primul caracter este o majuscula, ultimul caracter este un semn de punctuatie cum ar fi . ! sau ?, apar anumite grupuri de caractere cum ar fi ", ", ". " etc., cel mai lung cuvant are mai putin de 40 de caractere si numarul de spatii este mare (am presupus ca e mai mare ca 30)*/
+	if ((da_cod(text_criptat[0]) >= 0 && da_cod(text_criptat[0]) <= 25) && (text_criptat[text_criptat.size()-1]=='.' || text_criptat[text_criptat.size()-1] == '?' || text_criptat[text_criptat.size()-1] == '!') && (text_criptat.find(", ") || text_criptat.find(". ") || text_criptat.find("che") || text_criptat.find("chi") || text_criptat.find("ghe") || text_criptat.find("ghi") || text_criptat.find("e ") || text_criptat.find(" si ")) && cel_mai_lung_cuvant(text_criptat).length()<40 && flag>30){
+		return text_criptat;
+	}
+	else
+		return "";
+}
+
+
+void main() {
+	citeste_alfabet();
+	int n, p, q, e, d, phi;
+	vector<pair<int, int>> v;
+
+	//cout << "Programul va cauta numarul n care sa respecte anumite conditii";
+	for (n = 23001; n < 23992; n++) {//numarul n sa fie cuprins intre 23001 si 23992 
+		if (n % 10 == 1) {
+			factorizare(n, p, q);
+			phi = (p - 1) * (q - 1);
+			if (to_string(p).length() == to_string(q).length()) {//lungimea lui p si q sa fie aceeasi 
+				//cout << "\n" << n << "=" << p << "*" << q;
+				for (e = 3000; e < 4000; e++) {
+					int d = invers(e, phi);
+					if (d != -1) v.push_back(make_pair(n, d));
+				}
+			}
+		}
+	}
+	cout << "Numarul posibilelor chei de decriptare: " << v.size() << endl;
+
+	ifstream in("sursa.txt");
+	ofstream out("destinatie.txt");
+
+	string text = "";
+	char ch;
+	while (in >> noskipws >> ch) {
+		text = text + ch;
+	}
+
+	/*decriptam textul pentru fiecare pereche de chei*/
+	if (out.is_open()) {
+		for (int h = 0; h < v.size(); h++) {
+			/*daca dupa ce am decriptat, textul nu este nul, inseamna ca respecta cele cateva reguli impuse pentru a fi un text in clar*/
+			if (decriptare(text, v[h].first, v[h].second) != "") {
+				out << decriptare(text, v[h].first, v[h].second) << "\n";
+				cout << "O posibila cheie de decriptare este:(" << v[h].first << ", " << v[h].second << ")" << endl;
+			}
+		}
+	}
+	else
+		cout << "Eroare la scrierea in fisier";
+
+	system("pause");
+}

@@ -1,0 +1,8 @@
+﻿  Source.cpp
+D:\Documente\Facultate anul III\Criptografie\Teme Criptografie\RSA\Project1\Project1\Source.cpp(155,20): warning C4018: '<': signed/unsigned mismatch
+D:\Documente\Facultate anul III\Criptografie\Teme Criptografie\RSA\Project1\Project1\Source.cpp(189,24): warning C4018: '<': signed/unsigned mismatch
+D:\Documente\Facultate anul III\Criptografie\Teme Criptografie\RSA\Project1\Project1\Source.cpp(215,20): warning C4018: '<': signed/unsigned mismatch
+D:\Documente\Facultate anul III\Criptografie\Teme Criptografie\RSA\Project1\Project1\Source.cpp(230,13): warning C4326: return type of 'main' should be 'int' instead of 'void'
+D:\Documente\Facultate anul III\Criptografie\Teme Criptografie\RSA\Project1\Project1\Source.cpp(262,21): warning C4018: '<': signed/unsigned mismatch
+D:\Documente\Facultate anul III\Criptografie\Teme Criptografie\RSA\Project1\Project1\Source.cpp(232,18): warning C4101: 'd': unreferenced local variable
+  Project1.vcxproj -> D:\Documente\Facultate anul III\Criptografie\Teme Criptografie\RSA\Project1\Debug\Project1.exe
